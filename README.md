@@ -23,6 +23,23 @@ Useful for unique objects ids.
     key1 := ctmUtils.Key(32)
     // de8cbcdd5f73f9901c0c7fe8350693c2e53f8d36dd17a70613c84726372ca40b
 
+### ID
+The function GenerateID generates a random string in the "AAAA-BBBB-CCCC-DDX" format, 
+where the last is a ISO6346 check digit. 
+Useful for serial numbers, vouchers, etc.
+
+    ctmUtils := ctmutils.New()
+    key1 := ctmUtils.GenerateID()
+    // V5ZW-UJQ6-2WT6-H55
+
+There is also a validation function:
+
+    ctmUtils.ValidateID("V5ZW-UJQ6-2WT6-H55")  --> true if valid
+
+And a pair of Mask / Unmask function to switch between (AAAA-BBBB-CCCC-DDX <--> AAAABBBBCCCCDDX) formats
+
+    ctmUtils.MaskID("V5ZWUJQ62WT6H55") --> "V5ZW-UJQ6-2WT6-H55"
+    ctmUtils.UnmaskID("V5ZW-UJQ6-2WT6-H55")  --> "V5ZWUJQ62WT6H55"
 
 ## Algorithms
 
