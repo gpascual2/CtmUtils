@@ -101,3 +101,66 @@ func (f *CtmUtils) VerifyCheckDigit(word string) bool {
 	}
 	return res
 }
+
+// GenerateID - Generates an ID string in the following format: AAAA-BBBB-CCCC-DDX
+// where the last is a check digit.
+// Useful for serial numbers, vouchers, etc.
+func (f *CtmUtils) GenerateID() string {
+	// Wait for 2 Millisecond and set random seed
+	time.Sleep(2 * time.Millisecond)
+	mrnd.Seed(time.Now().UTC().UnixNano())
+	// Set the symbols set used as template for the ID.
+	// All upper case and without O/I 0/1 to minimize mispelling.
+	const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+	// Calculate random string using the above chars set and with the lenght requested
+	resValues := make([]byte, 14)
+	for i := 0; i < 14; i++ {
+		resValues[i] = chars[mrnd.Intn(len(chars))]
+	}
+	res := string(resValues)
+	// Calculate check digit
+	cd := f.CheckDigit(res)
+	res += strconv.Itoa(cd)
+	// Mask result to the AAAA-BBBB-CCCC-DDX format
+	res = f.MaskID(res)
+	return res
+}
+
+// MaskID - Masks an ID string to the "AAAA-BBBB-CCCC-DDX" format
+//   AAAABBBBCCCCDDX --> AAAA-BBBB-CCCC-DDX
+func (f *CtmUtils) MaskID(id string) string {
+	const separator = "-"
+	var res string = ""
+	if len(id) == 15 {
+		res = id[0:4] + separator + id[4:8] + separator + id[8:12] + separator + id[12:15]
+	} else {
+		res = id
+	}
+	return res
+}
+
+// UnmaskID - UnMasks an ID string from the "AAAA-BBBB-CCCC-DDX" format.
+//   AAAA-BBBB-CCCC-DDX --> AAAABBBBCCCCDDX
+func (f *CtmUtils) UnmaskID(id string) string {
+	const separator = "-"
+	var res string = ""
+	if len(id) == 18 && id[4:5] == separator && id[9:10] == separator && id[14:15] == separator {
+		res = id[0:4] + id[5:9] + id[10:14] + id[15:18]
+	} else {
+		res = id
+	}
+	return res
+}
+
+// ValidateID - Validates that the ID passed as parameter is fine.
+// UnMasks, checks lenght and CheckDigit of an ID string from the "AAAA-BBBB-CCCC-DDX" or "AAAABBBBCCCCDDX" formats.
+func (f *CtmUtils) ValidateID(id string) bool {
+	var res bool = false
+	str := f.UnmaskID(id)
+	if len(str) == 15 {
+		if f.VerifyCheckDigit(str) {
+			res = true
+		}
+	}
+	return res
+}

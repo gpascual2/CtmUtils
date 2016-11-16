@@ -100,3 +100,90 @@ func TestVerifyCheckDigit(t *testing.T) {
 		}
 	}
 }
+
+// Test random ID generation. Request 2 consecutive IDs and verify they are different.
+func TestGenerateID(t *testing.T) {
+	fmt.Println("\n>> ctmUtils_test : TestGenerateID")
+	ctmUtils := ctmutils.New()
+
+	id1 := ctmUtils.GenerateID()
+	id2 := ctmUtils.GenerateID()
+	fmt.Println("  - Debug - ID1: ", id1)
+	fmt.Println("  - Debug - ID2: ", id2)
+
+	if id1 == id2 {
+		t.Fail()
+	}
+}
+
+// Test Masking and UnMasking of ID strings
+func TestMaskID(t *testing.T) {
+	fmt.Println("\n>> ctmUtils_test : TestMaskID")
+	ctmUtils := ctmutils.New()
+
+	var testsValues = []struct {
+		word     string // input
+		expected string // expected result
+	}{
+		{"A123-B456-C789-D0X", "A123-B456-C789-D0X"},
+		{"A123B456C789D0X", "A123-B456-C789-D0X"},
+	}
+	for _, tt := range testsValues {
+		actual := ctmUtils.MaskID(tt.word)
+		if actual != tt.expected {
+			t.Errorf("  - Debug :: MaskID(%s): expected %s, actual %s", tt.word, tt.expected, actual)
+		}
+	}
+}
+
+// Test  UnMasking of ID strings
+func TestUnmaskID(t *testing.T) {
+	fmt.Println("\n>> ctmUtils_test : TestUnmaskID")
+	ctmUtils := ctmutils.New()
+
+	var testsValues = []struct {
+		word     string // input
+		expected string // expected result
+	}{
+		{"A123-B456-C789-D0X", "A123B456C789D0X"},
+		{"A123B456C789D0X", "A123B456C789D0X"},
+	}
+	for _, tt := range testsValues {
+		actual := ctmUtils.UnmaskID(tt.word)
+		if actual != tt.expected {
+			t.Errorf("  - Debug :: UnmaskID(%s): expected %s, actual %s", tt.word, tt.expected, actual)
+		}
+	}
+}
+
+// Test ID validity checking its format
+func TestValidateID(t *testing.T) {
+	fmt.Println("\n>> ctmUtils_test : TestValidateID")
+	ctmUtils := ctmutils.New()
+
+	var testsValues = []struct {
+		word     string // input
+		expected bool   // expected result
+	}{
+		{"85JT-F69X-GLPB-VL4", true},
+		{"85JT-F69X-GLPB-VL0", false},
+		{"85JT-F69X-GLPB-VL1", false},
+		{"85JT-F69X-GLPB-VL2", false},
+		{"85JT-F69X-GLPB-VL3", false},
+		{"85JT-F69X-GLPB-VL5", false},
+		{"85JT-F69X-GLPB-VL6", false},
+		{"85JT-F69X-GLPB-VL7", false},
+		{"85JT-F69X-GLPB-VL8", false},
+		{"85JT-F69X-GLPB-VL9", false},
+		{"85JTF69XGLPBVL4", true},
+		{"85JTF69XGLPBVL0", false},
+		{"A1B20", false},
+		{"A1B2-FE0", false},
+	}
+	for _, tt := range testsValues {
+		actual := ctmUtils.ValidateID(tt.word)
+		if actual != tt.expected {
+			t.Errorf("  - Debug :: ValidateID(%v): expected %t, actual %t", tt.word, tt.expected, actual)
+		}
+	}
+}
