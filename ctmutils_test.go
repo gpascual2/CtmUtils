@@ -43,8 +43,8 @@ func TestRandomKey(t *testing.T) {
 }
 
 // Test ISO6346 check digit generation
-func TestGetCheckDigit1(t *testing.T) {
-	fmt.Println("\n>> ctmUtils_test : TestGetCheckDigit1")
+func TestGetCheckDigit(t *testing.T) {
+	fmt.Println("\n>> ctmUtils_test : TestGetCheckDigit")
 	ctmUtils := ctmutils.New()
 
 	var testsValues = []struct {
@@ -63,6 +63,40 @@ func TestGetCheckDigit1(t *testing.T) {
 		actual := ctmUtils.CheckDigit(tt.word)
 		if actual != tt.expected {
 			t.Errorf("  - Debug :: CheckDigit(%v): expected %d, actual %d", tt.word, tt.expected, actual)
+		}
+	}
+}
+
+// Test ISO6346 check digit verification
+func TestVerifyCheckDigit(t *testing.T) {
+	fmt.Println("\n>> ctmUtils_test : TestVerifyCheckDigit")
+	ctmUtils := ctmutils.New()
+
+	var testsValues = []struct {
+		word     string // input
+		expected bool   // expected result
+	}{
+		{"CSQU3054383", true},
+		{"CSQU3054380", false},
+		{"CSQU3054381", false},
+		{"CSQU3054382", false},
+		{"CSQU3054384", false},
+		{"CSQU3054385", false},
+		{"CSQU3054386", false},
+		{"CSQU3054387", false},
+		{"CSQU3054388", false},
+		{"CSQU3054389", false},
+		{"A1B20", true},
+		{"ABCDEFGHIJKLMNOPQRSTUVWXYZ12345678901", true},
+		{"ABCDEFGHIJKLMNOPQRSTUVWXYZ0", true},
+		{"12345678905", true},
+		{"CSQU305438A", false},
+	}
+
+	for _, tt := range testsValues {
+		actual := ctmUtils.VerifyCheckDigit(tt.word)
+		if actual != tt.expected {
+			t.Errorf("  - Debug :: VerifyCheckDigit(%v): expected %t, actual %t", tt.word, tt.expected, actual)
 		}
 	}
 }

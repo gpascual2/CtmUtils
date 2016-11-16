@@ -4,6 +4,7 @@ import (
 	crnd "crypto/rand"
 	"math"
 	mrnd "math/rand"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -86,4 +87,17 @@ func (f *CtmUtils) CheckDigit(word string) int {
 	}
 
 	return compute
+}
+
+// VerifyCheckDigit - Verifies if the ISO6346 check digit is correct for the string passed as parameter.
+// CheckDigit assumed as last character.
+func (f *CtmUtils) VerifyCheckDigit(word string) bool {
+	var res bool = false
+	sWord := word[0 : len(word)-1]
+	sCheckDigit := word[len(word)-1 : len(word)]
+	cd := f.CheckDigit(sWord)
+	if sCheckDigit == strconv.Itoa(cd) {
+		res = true
+	}
+	return res
 }
